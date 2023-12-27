@@ -4,7 +4,7 @@ from app.scraper import save_info, get_info  # Importa as funções do scraper
 app = FastAPI()
 
 # Endpoint para salvar informações no MongoDB
-@app.get("/save_info/{item}", status_code=status.HTTP_201_CREATED)
+@app.post("/save_info/{item}", status_code=status.HTTP_201_CREATED)
 async def save(item: str):
     return await save_info(item)
 
