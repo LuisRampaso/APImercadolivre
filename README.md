@@ -1,6 +1,6 @@
 # Web Scraper e API FastAPI para Salvamento e Recuperação de Itens do Mercado Livre
 
-Este projeto é uma aplicação FastAPI para realizar scraping de itens de um site e salvar os dados em um banco de dados MongoDB.
+Este projeto é uma aplicação FastAPI para realizar scraping de itens do site Mercado Livre e salvar os dados em um banco de dados MongoDB.
 
 ## Funcionalidades
 
