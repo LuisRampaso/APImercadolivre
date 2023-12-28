@@ -12,7 +12,7 @@ db = client['items']
 collection = db['items_01']
 
 
-async def scrape_mercado_livre(url):
+async def scrape_mercado_livre(url, min_price=None, max_price=None):
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -31,13 +31,15 @@ async def scrape_mercado_livre(url):
         price_element = item_box.find("span", class_="andes-money-amount__fraction")
         price = float(price_element.text.strip()) if price_element else 0.0
         
-        # Utiliza o índice como ID ao invés de UUID
-        item_info = {
-            'id': index,
-            'title': title,
-            'price': price,
-        }
-        items.append(item_info)
+        # Aplicar filtros de preço, se fornecidos
+        if (min_price is None or price >= min_price) and (max_price is None or price <= max_price):
+            # Utiliza o índice como ID ao invés de UUID
+            item_info = {
+                'id': index,
+                'title': title,
+                'price': price,
+            }
+            items.append(item_info)
 
     return {
         'url': url,
@@ -45,17 +47,18 @@ async def scrape_mercado_livre(url):
     }
 
 
-async def save_info(item: str):
+
+async def save_info(item: str, min_price: float = None, max_price: float = None):
     url = f'https://lista.mercadolivre.com.br/{item}'  # URL base do Mercado Livre
 
-    data = await scrape_mercado_livre(url)
+    data = await scrape_mercado_livre(url, min_price, max_price)
 
     await collection.insert_one(data)
 
     return {"Mensagem": "Itens Salvos Com Sucesso"}
 
 
-async def get_info(item: str):
+async def get_info(item: str, min_price: float = None, max_price: float = None):
     url = f'https://lista.mercadolivre.com.br/{item}'  # URL base do Mercado Livre
 
     data = await collection.find_one({'url': url})
@@ -63,4 +66,11 @@ async def get_info(item: str):
     if not data:
         raise HTTPException(status_code=404, detail="Not Found")
 
-    return {"url": data.get("url"), "items": data.get("items")}
+    # Filtra os itens baseados nos parâmetros de preço, se fornecidos
+    filtered_items = data.get("items", [])
+    if min_price is not None:
+        filtered_items = [item for item in filtered_items if item.get("price") >= min_price]
+    if max_price is not None:
+        filtered_items = [item for item in filtered_items if item.get("price") <= max_price]
+
+    return {"url": data.get("url"), "items": filtered_items}

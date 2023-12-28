@@ -1,4 +1,4 @@
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, Query
 from app.scraper import save_info, get_info  # Importa as funções do scraper
 
 app = FastAPI()
@@ -10,8 +10,8 @@ async def save(item: str):
 
 # Endpoint para obter informações do MongoDB
 @app.get("/get_info/{item}")
-async def get(item: str):
-    return await get_info(item)
+async def get(item: str, min_price : float = Query(None), max_price : float = Query(None)):
+    return await get_info(item, min_price, max_price)
 
 # Descrição da rota raiz
 @app.get("/", tags=["Root"])
