@@ -29,7 +29,12 @@ async def scrape_mercado_livre(url, min_price=None, max_price=None):
         title = title_element.text.strip() if title_element else "Title not available"
 
         price_element = item_box.find("span", class_="andes-money-amount__fraction")
-        price = float(price_element.text.strip()) if price_element else 0.0
+        price_text = price_element.text.strip() if price_element else "0.0"
+
+# Remover pontuação (ponto ou vírgula) dos preços e formatar como número float
+        price_text = price_text.replace(".", "").replace(",", ".")
+
+        price = float(price_text)  # Converter para float
         
         # Aplicar filtros de preço, se fornecidos
         if (min_price is None or price >= min_price) and (max_price is None or price <= max_price):
@@ -72,5 +77,7 @@ async def get_info(item: str, min_price: float = None, max_price: float = None):
         filtered_items = [item for item in filtered_items if item.get("price") >= min_price]
     if max_price is not None:
         filtered_items = [item for item in filtered_items if item.get("price") <= max_price]
+
+    filtered_items.sort(key=lambda x: x.get("price"))   
 
     return {"url": data.get("url"), "items": filtered_items}
