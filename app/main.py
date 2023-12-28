@@ -10,12 +10,14 @@ async def save(item: str):
 
 # Endpoint para obter informações do MongoDB
 @app.get("/get_info/{item}")
-async def get(item: str, min_price : float = Query(None), max_price : float = Query(None)):
+async def get(item: str, min_price: float = Query(None), max_price: float = Query(None)):
+    # Chama a função get_info do scraper com os parâmetros opcionais de Query
     return await get_info(item, min_price, max_price)
 
 # Descrição da rota raiz
 @app.get("/", tags=["Root"])
 async def read_root():
+    # Mensagem de boas-vindas e direcionamento para a documentação
     return {"message": "Bem-vindo à API de Scraping. Acesse /docs para a documentação da API."}
 
 # Inicializa o servidor usando uvicorn
